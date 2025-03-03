@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1741044970 source:c:\users\equipo\desktop\javeriana\tercer semestre ingeniería de sistemas\estructuras de datos\componente1\main.cpp
+	<iostream>
+	<fstream>
+	<sstream>
+	<vector>
+	<string>
+	<algorithm>
+	<numeric>
+
