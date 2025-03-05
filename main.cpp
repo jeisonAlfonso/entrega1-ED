@@ -6,16 +6,19 @@
 #include <algorithm> // Para sort()
 #include <numeric>   // Para accumulate()
 using namespace std;
+/// @brief Clase que implementa un sistema de procesamiento de imágenes.
+/// Permite cargar imágenes en formato PGM, procesarlas y realizar diversas operaciones.
 
 class ImageProcessingSystem {
 private:
-    vector<vector<int>> imageData; // Matriz para almacenar la imagen en memoria
-    int width, height, maxPixelValue;
-    string imageFilename;
-    string volume;
-    vector<vector<vector<int>>> volumeData;
+    vector<vector<int>> imageData; ///< Matriz que almacena la imagen en memoria.
+    int width, height, maxPixelValue; ///< Dimensiones y valor máximo del píxel en la imagen.
+    string imageFilename; ///< Nombre del archivo de imagen cargado.
+    string volume; ///< Nombre del volumen de imágenes cargado.
+    vector<vector<vector<int>>> volumeData; ///< Volumen de imágenes en memoria.
 
 public:
+     /// @brief Inicia el sistema de procesamiento de imágenes e interactúa con el usuario.
     void start() {
         cout << "Bienvenido al Sistema de Procesamiento de Imágenes. Escriba 'ayuda' para ver los comandos disponibles." << endl;
         string command;
@@ -34,6 +37,8 @@ public:
     }
 
 private:
+    /// @brief Maneja los comandos ingresados por el usuario.
+    /// @param command Comando ingresado en la terminal.
     void handleCommand(string command) {
         string cmd, param, extra;
         int spacePos = command.find(' ');
@@ -67,6 +72,8 @@ private:
             cout << "Comando no reconocido. Escriba 'ayuda' para ver los comandos disponibles." << endl;
         }
     }
+    /// @brief Muestra información sobre los comandos disponibles o detalles específicos de un comando.
+    /// @param cmd Comando sobre el cual se desea obtener ayuda.
 
     void showHelp(string cmd) {
         if (cmd.empty()) {
@@ -102,6 +109,7 @@ private:
             }
         }
     }
+    /// metodo para mostrar la informacion que se guardo de la imagen en el vector, incluyendo los datos
     void mostrarImagen() {
     cout << "Contenido de la imagen cargada (" << width << "x" << height << "):" << endl;
     for (int i = 0; i < height; i++) {
@@ -111,6 +119,8 @@ private:
         cout << endl;
     }
 }
+      /// @brief Carga una imagen en formato PGM en memoria.
+    /// @param filename Nombre del archivo de imagen a cargar.
 
  void loadImage(string filename) {
     if (filename.empty()) {
@@ -233,7 +243,7 @@ private:
     volume = base;
     cout << "El volumen " << base << " ha sido cargado con " << num_images << " imágenes." << endl;
 }
-
+      /// @brief Muestra información sobre la imagen cargada.
 
     void infoImage() {
         if (imageFilename.empty()) {
@@ -244,6 +254,7 @@ private:
             cout << "Valor máximo de píxel: " << maxPixelValue << endl;
         }
     }
+ /// @brief Muestra información sobre el volumen cargado.
 
     void infoVolume() {
         if (volume.empty() || volumeData.empty()) {
@@ -257,6 +268,8 @@ private:
         }
         }
     }
+    /// @brief Genera una proyección 2D de un volumen cargado según un criterio dado.
+    /// @param param Dirección de la proyección (x, y o z), criterio (max, min, prom, med) y nombre del archivo de salida.
 
     void projection2D(string param) {
         stringstream ss(param);
@@ -418,6 +431,8 @@ private:
         cout << "No hay una imagen cargada en memoria." << endl;
     }
 };
+/// @brief Función principal que inicia el sistema de procesamiento de imágenes.
+/// @return Código de salida del programa.
 
 int main() {
     ImageProcessingSystem system;
