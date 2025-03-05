@@ -120,7 +120,7 @@ private:
     }
 }
       /// @brief Carga una imagen en formato PGM en memoria.
-    /// @param filename Nombre del archivo de imagen a cargar.
+    /// @param filename Nombre del archivo de imagen a cargar en el vector.
 
  void loadImage(string filename) {
     if (filename.empty()) {
