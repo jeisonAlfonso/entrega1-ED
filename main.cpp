@@ -6,19 +6,16 @@
 #include <algorithm> // Para sort()
 #include <numeric>   // Para accumulate()
 using namespace std;
-/// @brief Clase que implementa un sistema de procesamiento de imágenes.
-/// Permite cargar imágenes en formato PGM, procesarlas y realizar diversas operaciones.
 
 class ImageProcessingSystem {
 private:
-    vector<vector<int>> imageData; ///< Matriz que almacena la imagen en memoria.
-    int width, height, maxPixelValue; ///< Dimensiones y valor máximo del píxel en la imagen.
-    string imageFilename; ///< Nombre del archivo de imagen cargado.
-    string volume; ///< Nombre del volumen de imágenes cargado.
-    vector<vector<vector<int>>> volumeData; ///< Volumen de imágenes en memoria.
+    vector<vector<int>> imageData; // Matriz para almacenar la imagen en memoria
+    int width, height, maxPixelValue;
+    string imageFilename;
+    string volume;
+    vector<vector<vector<int>>> volumeData;
 
 public:
-     /// @brief Inicia el sistema de procesamiento de imágenes e interactúa con el usuario.
     void start() {
         cout << "Bienvenido al Sistema de Procesamiento de Imágenes. Escriba 'ayuda' para ver los comandos disponibles." << endl;
         string command;
@@ -37,8 +34,6 @@ public:
     }
 
 private:
-    /// @brief Maneja los comandos ingresados por el usuario.
-    /// @param command Comando ingresado en la terminal.
     void handleCommand(string command) {
         string cmd, param, extra;
         int spacePos = command.find(' ');
@@ -72,8 +67,6 @@ private:
             cout << "Comando no reconocido. Escriba 'ayuda' para ver los comandos disponibles." << endl;
         }
     }
-    /// @brief Muestra información sobre los comandos disponibles o detalles específicos de un comando.
-    /// @param cmd Comando sobre el cual se desea obtener ayuda.
 
     void showHelp(string cmd) {
         if (cmd.empty()) {
@@ -109,8 +102,7 @@ private:
             }
         }
     }
-    /// metodo para mostrar la informacion que se guardo de la imagen en el vector, incluyendo los datos
-    void mostrarImagen() {
+  /*  void mostrarImagen() {
     cout << "Contenido de la imagen cargada (" << width << "x" << height << "):" << endl;
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
@@ -119,9 +111,7 @@ private:
         cout << endl;
     }
 }
-      /// @brief Carga una imagen en formato PGM en memoria.
-    /// @param filename Nombre del archivo de imagen a cargar en el vector.
-
+*/
  void loadImage(string filename) {
     if (filename.empty()) {
         cout << "Uso incorrecto del comando. Escriba 'ayuda cargar_imagen' para más información." << endl;
@@ -174,76 +164,105 @@ private:
 
     imageFilename = filename;
     cout << "La imagen " << filename << " ha sido cargada." << endl;
-    mostrarImagen();
+   // mostrarImagen();
 }
 
-  void loadVolume(string param) {
+  /**
+ * @brief Carga un volumen de imágenes en formato PGM y las redimensiona al tamaño de la imagen más grande.
+ *
+ * @param param Nombre base de las imágenes seguido de la cantidad de imágenes a cargar.
+ *
+ * Ejemplo de uso:
+ *     cargar_volumen imagen 10
+ *
+ * Esto intentará cargar las imágenes: imagen01.pgm, imagen02.pgm, ..., imagen10.pgm
+ */
+void loadVolume(string param) {
+    // Buscar la posición del primer espacio en la cadena
     int spacePos = param.find(' ');
     if (spacePos == string::npos) {
         cout << "Uso incorrecto del comando. Escriba 'ayuda cargar_volumen' para más información." << endl;
         return;
     }
 
+    // Separar el nombre base de las imágenes y la cantidad de imágenes a cargar
     string base = param.substr(0, spacePos);
     string numStr = param.substr(spacePos + 1);
 
     int num_images;
     try {
-        num_images = stoi(numStr);
+        num_images = stoi(numStr);  // Convertir el número de imágenes a entero
     } catch (exception &e) {
         cout << "Error: Número de imágenes no válido." << endl;
         return;
     }
 
+    // Validar el rango del número de imágenes
     if (num_images < 1 || num_images > 99) {
         cout << "Error: La cantidad de imágenes debe estar entre 1 y 99." << endl;
         return;
     }
 
-    volumeData.clear(); // Almacenar todas las imágenes cargadas
-    int commonWidth = -1, commonHeight = -1, commonMaxPixel = -1;
+    // Limpiar la estructura que almacenará el volumen de imágenes
+    volumeData.clear();
+    int maxWidth = -1, maxHeight = -1;  // Variables para almacenar las dimensiones máximas
 
+    vector<vector<vector<int>>> tempVolumeData; // Almacenamiento temporal de las imágenes
+
+    /**
+     * Paso 1: Determinar el tamaño máximo de las imágenes
+     */
     for (int i = 1; i <= num_images; i++) {
+        // Generar el nombre del archivo con formato "nombre_baseXX.pgm"
         stringstream ss;
-        ss << base << (i < 10 ? "0" : "") << i << ".pgm"; // Genera nombres nombre_base01.pgm, nombre_base02.pgm, etc.
+        ss << base << (i < 10 ? "0" : "") << i << ".pgm";
         string filename = ss.str();
 
-        // Llamamos a la función loadImage para cargar la imagen en memoria
-        string prevFilename = imageFilename;
-        vector<vector<int>> prevImageData = imageData; // Guardamos la imagen actual temporalmente
-        int prevWidth = width, prevHeight = height, prevMaxPixel = maxPixelValue;
-
+        // Intentar cargar la imagen
         loadImage(filename);
 
-        if (imageFilename.empty()) { // Si hubo error al cargar la imagen, restauramos la imagen anterior
-            imageFilename = prevFilename;
-            imageData = prevImageData;
-            width = prevWidth;
-            height = prevHeight;
-            maxPixelValue = prevMaxPixel;
+        // Si la imagen no se cargó correctamente, se muestra un mensaje de error y se detiene la carga
+        if (imageFilename.empty()) {
             cout << "Error: No se pudo cargar " << filename << endl;
             return;
         }
 
-        // Validar que todas las imágenes tengan el mismo tamaño
-        if (commonWidth == -1) {
-            commonWidth = width;
-            commonHeight = height;
-            commonMaxPixel = maxPixelValue;
-        } else if (width != commonWidth || height != commonHeight || maxPixelValue != commonMaxPixel) {
-            cout << "Error: Las dimensiones de " << filename << " no coinciden con las anteriores." << endl;
-            return;
-        }
+        // Actualizar las dimensiones máximas encontradas
+        maxWidth = max(maxWidth, width);
+        maxHeight = max(maxHeight, height);
 
-        // Agregamos la imagen al volumen
-        volumeData.push_back(imageData);
+        // Almacenar la imagen temporalmente
+        tempVolumeData.push_back(imageData);
     }
 
-    // Guardamos el volumen en memoria solo si todas las imágenes fueron cargadas correctamente
-    volume = base;
-    cout << "El volumen " << base << " ha sido cargado con " << num_images << " imágenes." << endl;
+    /**
+     * Paso 2: Redimensionar todas las imágenes al tamaño máximo encontrado
+     */
+    volumeData.clear();  // Limpiar la estructura para almacenar las imágenes finales
+
+    for (auto &image : tempVolumeData) {
+        // Crear una nueva imagen con las dimensiones máximas, rellena con ceros (negro)
+        vector<vector<int>> resizedImage(maxHeight, vector<int>(maxWidth, 0));
+
+        // Copiar los valores de la imagen original a la nueva imagen redimensionada
+        for (int i = 0; i < image.size(); i++) {
+            for (int j = 0; j < image[i].size(); j++) {
+                resizedImage[i][j] = image[i][j];  // Copiar el valor original
+            }
+        }
+
+        // Agregar la imagen redimensionada al volumen final
+        volumeData.push_back(resizedImage);
+    }
+
+    // Mensaje de éxito indicando la cantidad de imágenes cargadas y sus dimensiones unificadas
+    cout << "El volumen " << base << " ha sido cargado con " << num_images
+         << " imágenes, todas redimensionadas a " << maxWidth << "x" << maxHeight << "." << endl;
+         height = maxHeight;
+         width = maxWidth;
 }
-      /// @brief Muestra información sobre la imagen cargada.
+
+
 
     void infoImage() {
         if (imageFilename.empty()) {
@@ -254,10 +273,9 @@ private:
             cout << "Valor máximo de píxel: " << maxPixelValue << endl;
         }
     }
- /// @brief Muestra información sobre el volumen cargado.
 
     void infoVolume() {
-        if (volume.empty() || volumeData.empty()) {
+        if ( volumeData.empty()) {
             cout << "No hay un volumen cargado en memoria." << endl;
         } else {
             cout << "Volumen cargado en memoria: " << volume << endl;
@@ -268,8 +286,6 @@ private:
         }
         }
     }
-    /// @brief Genera una proyección 2D de un volumen cargado según un criterio dado.
-    /// @param param Dirección de la proyección (x, y o z), criterio (max, min, prom, med) y nombre del archivo de salida.
 
     void projection2D(string param) {
         stringstream ss(param);
@@ -431,8 +447,6 @@ private:
         cout << "No hay una imagen cargada en memoria." << endl;
     }
 };
-/// @brief Función principal que inicia el sistema de procesamiento de imágenes.
-/// @return Código de salida del programa.
 
 int main() {
     ImageProcessingSystem system;
